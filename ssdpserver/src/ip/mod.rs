@@ -19,6 +19,7 @@ pub struct Ip {
 }
 
 impl Ip {
+	/// Instantiate new IP object
 	fn new() -> Ip {
 		Ip {
 			blacklisted: false,
@@ -26,12 +27,14 @@ impl Ip {
 			consumed: 3600
 		}
 	}
+	/// Write IP object to Redis
 	pub fn write(self, address: &String, connection: &redis::Connection) -> redis::RedisResult<()> {
 		let mut buf: Vec<u8> = Vec::new();
 		self.serialize(&mut Serializer::new(&mut buf)).unwrap();
 		connection.set(address, buf)?;
 		Ok(())
 	}
+	/// Get IP object from Redis or create new object
 	pub fn get(address: &String, connection: &redis::Connection) -> Ip {
 		let buf: Vec<u8> = connection.get(address).unwrap();
 		let mut de = Deserializer::new(&buf[..]);
