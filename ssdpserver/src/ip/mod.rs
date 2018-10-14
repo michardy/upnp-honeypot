@@ -46,7 +46,7 @@ impl Ip {
 		addr
 	}
 	/// Updates the consumed and last_seen fields. Additionally blacklists consumed IPs
-	pub fn update(&mut self, recieved: DateTime<Utc>) {
+	fn update(&mut self, recieved: DateTime<Utc>) {
 		if !self.blacklisted {
 			match self.last_seen {
 				Some(time) => {

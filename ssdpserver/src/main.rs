@@ -1,4 +1,3 @@
-#![feature(extern_prelude)]
 extern crate chrono;
 extern crate redis;
 extern crate serde;
@@ -10,7 +9,6 @@ extern crate serde_derive;
 mod ip;
 
 use std::net::UdpSocket;
-use chrono::prelude::*;
 
 fn main() -> std::io::Result<()> {
 	{
@@ -27,13 +25,14 @@ fn main() -> std::io::Result<()> {
 
 			let (amt, src) = socket.recv_from(&mut buf)?;
 			let address = format!("{}", src.ip());
-			let mut address_listing = ip::Ip::get(&address, &con);
+			let address_listing = ip::Ip::get(&address, &con);
 
 			let buf = &mut buf[..amt];
 			if !address_listing.blacklisted {
 				socket.send_to(buf, &src)?;
 			}
-			address_listing.write(&address, &con);
+			address_listing.write(&address, &con)
+				.expect("Could not write IP object");
 		}
 	} // the socket is closed here
 	Ok(())
