@@ -90,6 +90,7 @@ pub struct SsdpRequest {
 }
 
 impl SsdpRequest {
+	/// Parses status header on SSDP's HTTP over UDP packets
 	fn parse_httpu(&mut self, lines:Vec<&str>) -> u8 {
 		let parts: Vec<&str> = lines[0].split(' ').collect();
 		if parts[0] == "HTTP/1.1" {
@@ -102,6 +103,7 @@ impl SsdpRequest {
 		self.uri = Some(parts[1]);
 		self.protocol = Some(parts[2]);
 	}
+	/// Searches for and parses M-SEARCH parameters
 	fn parse_search(&mut self, lines:Vec<&str>) {
 		for line in lines {
 			let parts: Vec<&str> = lines[0].split(": ").collect();
@@ -118,6 +120,7 @@ impl SsdpRequest {
 			}
 		}
 	}
+	/// Searches for and parses NOTIFY and response headers
 	fn parse_notify(&mut self, lines:Vec<&str>) {
 		for line in lines {
 			let parts: Vec<&str> = lines[0].split(": ").collect();
@@ -144,6 +147,7 @@ impl SsdpRequest {
 			}
 		}
 	}
+	/// Parses response headers
 	fn parse_response(&mut self, lines:Vec<&str>) {
 		for line in lines {
 			let parts: Vec<&str> = lines[0].split(": ").collect();
@@ -154,6 +158,7 @@ impl SsdpRequest {
 			}
 		}
 	}
+	/// Parse a recived SSDP request
 	fn parse(&mut self) {
 		let lines:Vec<&str> = self.raw.split('\n').collect();
 		parse_httpu(&mut self, lines);
@@ -161,8 +166,8 @@ impl SsdpRequest {
 		parse_notify(&mut self, lines);
 		parse_response(&mut self, lines);
 	}
+	/// Instantiate SsdpRequest object
 	pub fn new(payload: str, blocked: bool) -> SsdpRequest {
-		/// Instantiate SsdpRequest object
 		SsdpRequest {
 			method: "",
 			uri: "",
