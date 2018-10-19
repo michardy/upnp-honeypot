@@ -9,8 +9,9 @@ Honeypot emulating vulnerable UPNP enabled home network gateway
 - ssdpserver/
 	- UDP Server that advertises the SOAP server using SSDP (In progress)
 		- Respond to M-Search requests (Todo)
-		- Index all SSDP fields into Elasticsearch (In proggress)
+		- Index all SSDP fields into Elasticsearch (In progress)
 		- Block frequent repeat requests. (Done)
+
 The UPNP event notification system will not be implimented at this time.
 When it is it will be nessisary to add a UDP server for event transmission and possibly subscription
 (The UPNP spec is a little vague as to whether subscriptions requests are sent over HTTP or UDP).
