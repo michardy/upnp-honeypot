@@ -204,18 +204,43 @@ impl SsdpRequest {
 	}
 	/// Instantiate SsdpRequest object
 	pub fn new(payload: str, blocked: bool) -> SsdpRequest {
-		SsdpRequest {
-			method: "",
-			uri: "",
-			protocol: "",
-			host: "",
-			target: "",
-			man: "",
-			timeout: 1,
-			responded: true,
-			raw: Vec::new(),
-			responded: !blocked
-		}
+		let mut req = SsdpRequest {
+			timestamp: Some(Utc::now()),
+			method: None,
+			uri: None,
+			protocol: None,
+			Status: None,
+			Reason: None,
+			host: Vec::new(),
+			man: Vec::new(),
+			delay: Vec::new(),
+			target: Vec::new(),
+			user_agent: Vec::new(),
+			cache_control: Vec::new(),
+			location: Vec::new(),
+			notification: Vec::new(),
+			sub_notification: Vec::new(),
+			server: Vec::new(),
+			service: Vec::new(),
+			boot: Vec::new(),
+			next_boot: Vec::new(),
+			config: Vec::new(),
+			port: Vec::new(),
+			date: Vec::new(),
+			extension: Vec::new(),
+			responded: !blocked,
+			valid: false,
+			valid_httpu: false,
+			unknown: false,
+			skipped: false,
+			overwrite: false,
+			terminated: false,
+			combination: false,
+			length: 0u64,
+			raw: Vec::new()
+		};
+		req.parse();
+		req
 	}
 	fn post(self) {
 		/// Upload object to elasticsearch
