@@ -78,8 +78,6 @@ pub struct SsdpRequest {
 	overwrite: bool,
 	/// Did the headers end with a blank line?
 	terminated: bool,
-	/// Was there a body?
-	body: bool,
 	/// Was the combination of headers valid?
 	combination: bool,
 	/// Request length
@@ -158,13 +156,51 @@ impl SsdpRequest {
 			}
 		}
 	}
-	/// Parse a recived SSDP request
+	/// Parse a recieved SSDP request
 	fn parse(&mut self) {
-		let lines:Vec<&str> = self.raw.split('\n').collect();
+		let lines:Vec<&str> = self.raw.split("\r\n").collect();
 		parse_httpu(&mut self, lines);
 		parse_search(&mut self, lines);
 		parse_notify(&mut self, lines);
 		parse_response(&mut self, lines);
+	}
+	/// Populate generated fields
+	fn generate(&mut self, lines:Vec<&str>) {
+		self.valid_httpu = (
+			(
+				match self.method {
+					Some(_) => true,
+					None => false
+				} &&
+				match self.uri {
+					Some(_) => true,
+					None => false
+				} &&
+				match self.protocol {
+					Some(_) => true,
+					None => false
+				}
+			) || (
+				match self.protocol {
+					Some(_) => true,
+					None => false
+				} &&
+				match self.status {
+					Some(_) => true,
+					None => false
+				} &&
+				match self.reason {
+					Some(_) => true,
+					None => false
+				}
+			)
+		);
+		if line.len() > 0 {
+			self.terminated = line[line.len()-1] == "\r\n"
+		} else {
+			self.terminated = false;
+		}
+		self.length = self.raw.len();
 	}
 	/// Instantiate SsdpRequest object
 	pub fn new(payload: str, blocked: bool) -> SsdpRequest {
@@ -178,6 +214,7 @@ impl SsdpRequest {
 			timeout: 1,
 			responded: true,
 			raw: Vec::new(),
+			responded: !blocked
 		}
 	}
 	fn post(self) {
