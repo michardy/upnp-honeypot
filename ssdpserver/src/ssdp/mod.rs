@@ -1,8 +1,6 @@
 use chrono::prelude::*;
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 /// A structure used to store all incoming SSDP packets in Elasticsearch.
 /// This structure is designed to store malformed and potentally malicious packets.
 /// It supports:
@@ -16,53 +14,53 @@ pub struct SsdpRequest {
 	/// Approximate time request was recieved
 	timestamp: Option<DateTime<Utc>>,
 	/// Request method. Either `NOTIFY` or `M-SEARCH`
-	method: Option<str>,
+	method: Option<String>,
 	/// Resource URI. Must be *
-	uri: Option<str>,
+	uri: Option<String>,
 	/// Protocol and version. Generally HTTP/1.1
-	protocol: Option<str>,
+	protocol: Option<String>,
 	/// Status code
-	status: Option<str>,
+	status: Option<String>,
 	/// Reason (Ex: for status code of 200 reason is OK)
-	reason: Option<str>,
+	reason: Option<String>,
 	// Search
 	/// Target device address or SSDP multicast address
-	host: Vec<str>,
+	host: Vec<String>,
 	/// The "MAN" field. If set must be `ssdp:discover`
-	man: Vec<str>,
+	man: Vec<String>,
 	/// The "MX" field. Max number of seconds for random response delay.
 	/// Ranges from 1 to 5
-	delay: Vec<str>,
+	delay: Vec<String>,
 	/// The "ST" field. If set contains selector describing devices that should respond
-	target: Vec<str>,
+	target: Vec<String>,
 	/// User-Agent
-	user_agent: Vec<str>,
+	user_agent: Vec<String>,
 	// Notification and response
 	/// The "CACHE-CONTROL" field
-	cache_control: Vec<str>,
+	cache_control: Vec<String>,
 	/// The url of the root device description
-	location: Vec<str>,
+	location: Vec<String>,
 	/// The "NT" field. Notification type
-	notification: Vec<str>,
+	notification: Vec<String>,
 	/// The "NTS" field. Sub notification type
-	sub_notification: Vec<str>,
+	sub_notification: Vec<String>,
 	/// The software and version information
-	server: Vec<str>,
+	server: Vec<String>,
 	/// The "USN" field. The unique service name of a UPNP service
-	service: Vec<str>,
+	service: Vec<String>,
 	/// The "BOOTID.UPNP.ORG" field. Boot ID. 31 bit unsigned int (Don't question it)
-	boot: Vec<str>,
+	boot: Vec<String>,
 	/// The "NEXTBOOTID.UPNP.ORG" field. Sent if multihomed device changes connectivity on another network
-	next_boot: Vec<str>,
+	next_boot: Vec<String>,
 	/// The "CONFIGID.UPNP.ORG" field. Sent when config is updated.
-	config: Vec<str>,
+	config: Vec<String>,
 	/// The "SEARCHPORT.UPNP.ORG" field. Used for setting nonstandard search ports
-	port: Vec<str>,
+	port: Vec<String>,
 	// Response only
 	/// Response generation date
-	date: Vec<str>,
+	date: Vec<String>,
 	/// The "EXT" field. Required for backwards compatability
-	extension: Vec<str>,
+	extension: Vec<String>,
 	// Generated fields
 	/// Did the request get a response?
 	responded: bool,
@@ -81,91 +79,92 @@ pub struct SsdpRequest {
 	/// Was the combination of headers valid?
 	combination: bool,
 	/// Request length
-	length: u64,
+	length: usize,
 	/// Raw request content
 	/// Created because unrecognized fields get dropped
-	raw: str
+	raw: String
 }
 
 impl SsdpRequest {
 	/// Parses status header on SSDP's HTTP over UDP packets
-	fn parse_httpu(&mut self, lines:Vec<&str>) -> u8 {
-		let parts: Vec<&str> = lines[0].split(' ').collect();
+	fn parse_httpu(&mut self, lines: &Vec<String>) {
+		let parts: Vec<String> = lines[0].split(' ').map(|x| x.to_string()).collect();
 		if parts[0] == "HTTP/1.1" {
 		} else {
-			self.protocol = some(parts[0]);
-			self.status = some(parts[1]);
-			self.reason = some(parts[2]);
+			self.protocol = Some(parts[0].clone());
+			self.status = Some(parts[1].clone());
+			self.reason = Some(parts[2].clone());
 		}
-		self.method = Some(parts[0]);
-		self.uri = Some(parts[1]);
-		self.protocol = Some(parts[2]);
+		self.method = Some(parts[0].clone());
+		self.uri = Some(parts[1].clone());
+		self.protocol = Some(parts[2].clone());
 	}
 	/// Searches for and parses M-SEARCH parameters
-	fn parse_search(&mut self, lines:Vec<&str>) {
+	fn parse_search(&mut self, lines: &Vec<String>) {
 		for line in lines {
-			let parts: Vec<&str> = lines[0].split(": ").collect();
+			let parts: Vec<String> = line.split(": ").map(|x| x.to_string()).collect();
 			if parts[0] == "HOST" {
-				self.host.push(parts[1]);
+				self.host.push(parts[1].clone());
 			} else if parts[0] == "MAN" {
-				self.man.push(parts[1]);
+				self.man.push(parts[1].clone());
 			} else if parts[0] == "MX" {
-				self.delay.push(parts[1]);
+				self.delay.push(parts[1].clone());
 			} else if parts[0] == "ST" {
-				self.target.push(parts[1]);
+				self.target.push(parts[1].clone());
 			} else if parts[0] == "USER-AGENT" {
-				self.user_agent.push(parts[1]);
+				self.user_agent.push(parts[1].clone());
 			}
 		}
 	}
 	/// Searches for and parses NOTIFY and response headers
-	fn parse_notify(&mut self, lines:Vec<&str>) {
+	fn parse_notify(&mut self, lines: &Vec<String>) {
 		for line in lines {
-			let parts: Vec<&str> = lines[0].split(": ").collect();
+			let parts: Vec<String> = line.split(": ").map(|x| x.to_string()).collect();
 			if parts[0] == "CACHE-CONTROL" {
-				self.cache_control.push(parts[1]);
+				self.cache_control.push(parts[1].clone());
 			} else if parts[0] == "LOCATION" {
-				self.location.push(parts[1]);
+				self.location.push(parts[1].clone());
 			} else if parts[0] == "NT" {
-				self.notification.push(parts[1]);
+				self.notification.push(parts[1].clone());
 			} else if parts[0] == "NTS" {
-				self.sub_notification.push(parts[1]);
+				self.sub_notification.push(parts[1].clone());
 			} else if parts[0] == "SERVER" {
-				self.server.push(parts[1]);
+				self.server.push(parts[1].clone());
 			} else if parts[0] == "USN" {
-				self.service.push(parts[1]);
+				self.service.push(parts[1].clone());
 			} else if parts[0] == "BOOTID.UPNP.ORG" {
-				self.boot.push(parts[1]);
+				self.boot.push(parts[1].clone());
 			} else if parts[0] == "NEXTBOOTID.UPNP.ORG" {
-				self.next_boot.push(parts[1]);
+				self.next_boot.push(parts[1].clone());
 			} else if parts[0] == "CONFIGID.UPNP.ORG" {
-				self.config.push(parts[1]);
+				self.config.push(parts[1].clone());
 			} else if parts[0] == "SEARCHPORT.UPNP.ORG" {
-				self.port.push(parts[1]);
+				self.port.push(parts[1].clone());
 			}
 		}
 	}
 	/// Parses response headers
-	fn parse_response(&mut self, lines:Vec<&str>) {
+	fn parse_response(&mut self, lines: &Vec<String>) {
 		for line in lines {
-			let parts: Vec<&str> = lines[0].split(": ").collect();
+			let parts: Vec<String> = line.split(": ").map(|x| x.to_string()).collect();
 			if parts[0] == "DATE" {
-				self.date.push(parts[1]);
+				self.date.push(parts[1].clone());
 			} else if parts[0] == "EXT" {
-				self.extension.push(parts[1]);
+				self.extension.push(parts[1].clone());
 			}
 		}
 	}
 	/// Parse a recieved SSDP request
 	fn parse(&mut self) {
-		let lines:Vec<&str> = self.raw.split("\r\n").collect();
-		parse_httpu(&mut self, lines);
-		parse_search(&mut self, lines);
-		parse_notify(&mut self, lines);
-		parse_response(&mut self, lines);
+		let lines:Vec<String> = self.raw.split("\r\n").map(|x| x.to_string()).collect();
+		self.parse_httpu(&lines);
+		self.parse_search(&lines);
+		self.parse_notify(&lines);
+		self.parse_response(&lines);
+		self.generate(&lines);
 	}
 	/// Populate generated fields
-	fn generate(&mut self, lines:Vec<&str>) {
+	fn generate(&mut self, lines: &Vec<String>) {
 		self.valid_httpu = (
 			(
 				match self.method {
@@ -195,22 +194,22 @@ impl SsdpRequest {
 				}
 			)
 		);
-		if line.len() > 0 {
-			self.terminated = line[line.len()-1] == "\r\n"
+		if lines.len() > 0 {
+			self.terminated = lines[lines.len()-1] == "\r\n"
 		} else {
 			self.terminated = false;
 		}
 		self.length = self.raw.len();
 	}
 	/// Instantiate SsdpRequest object
-	pub fn new(payload: str, blocked: bool) -> SsdpRequest {
+	pub fn new(payload: String, blocked: bool) -> SsdpRequest {
 		let mut req = SsdpRequest {
 			timestamp: Some(Utc::now()),
 			method: None,
 			uri: None,
 			protocol: None,
-			Status: None,
-			Reason: None,
+			status: None,
+			reason: None,
 			host: Vec::new(),
 			man: Vec::new(),
 			delay: Vec::new(),
@@ -236,13 +235,14 @@ impl SsdpRequest {
 			overwrite: false,
 			terminated: false,
 			combination: false,
-			length: 0u64,
-			raw: Vec::new()
+			length: 0usize,
+			raw: payload
 		};
 		req.parse();
 		req
 	}
-	fn post(self) {
-		/// Upload object to elasticsearch
+	/// Upload object to elasticsearch
+	pub fn post(self, client: &elastic_index::Client) {
+		elastic_index::Index::new("ssdp".to_string()).index(&client, self);
 	}
 }
