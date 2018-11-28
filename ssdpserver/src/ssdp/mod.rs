@@ -1,4 +1,5 @@
 use chrono::prelude::*;
+use std::collections::HashSet;
 
 #[derive(Serialize)]
 /// A structure used to store all incoming SSDP packets in Elasticsearch.
@@ -86,6 +87,35 @@ pub struct SsdpRequest {
 }
 
 impl SsdpRequest {
+	fn check_headers(&mut self, lines: &Vec<String) {
+		for line in lines {
+			let parts: Vec<String> = line.split(": ").map(|x| x.to_string()).collect();
+			let headers: HashSet<&'static str> = [
+				"HOST",
+				"MAN",
+				"MX",
+				"ST",
+				"USER-AGENT",
+				"CACHE-CONTROL",
+				"LOCATION",
+				"NT",
+				"NTS",
+				"SERVER",
+				"USN",
+				"BOOTID.UPNP.ORG",
+				"NEXTBOOTID.UPNP.ORG",
+				"CONFIGID.UPNP.ORG",
+				"SEARCHPORT.UPNP.ORG",
+				"DATE",
+				"EXT"
+			].iter().cloned().collect();
+			if !parts[0].contains(header)) {
+				self.unknown = true;
+				return
+			}
+		}
+		self.unknown = false;
+	}
 	/// Parses status header on SSDP's HTTP over UDP packets
 	fn parse_httpu(&mut self, lines: &Vec<String>) {
 		let parts: Vec<String> = lines[0].split(' ').map(|x| x.to_string()).collect();
@@ -161,7 +191,13 @@ impl SsdpRequest {
 		self.parse_search(&lines);
 		self.parse_notify(&lines);
 		self.parse_response(&lines);
+		self.check_headers(&lines);
 		self.generate(&lines);
+	}
+	/// Check the combination headers to see if they are valid
+	fn check_combo(&mut self) {
+		if host.len > 0 && host.len < 2 {
+		}
 	}
 	/// Populate generated fields
 	fn generate(&mut self, lines: &Vec<String>) {
