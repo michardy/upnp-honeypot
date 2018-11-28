@@ -155,11 +155,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "elastic-index"
 version = "0.1.0"
-source = "git+https://github.com/michardy/elastic-index.git#0a8b3a7c03ea6aef1a0a6c1dbd1c6cab2dcb1dfc"
+source = "git+https://github.com/michardy/elastic-index.git#76c82ac960d2cd54ab4c6d4acda8c90aaf06f1a5"
 dependencies = [
  "reqwest 0.9.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 1.0.32 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
