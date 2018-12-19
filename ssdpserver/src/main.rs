@@ -37,7 +37,7 @@ fn main() -> std::io::Result<()> {
 			);
 			req.post(&elastic_client);
 			if !address_listing.blacklisted {
-				socket.send_to(buf, &src)?;
+				socket.send_to(include!("ssdp.response"), &src)?;
 			}
 			address_listing.write(&address, &con)
 				.expect("Could not write IP object");

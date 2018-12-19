@@ -87,7 +87,7 @@ pub struct SsdpRequest {
 }
 
 impl SsdpRequest {
-	fn check_headers(&mut self, lines: &Vec<String) {
+	fn check_headers(&mut self, lines: &Vec<String>) {
 		for line in lines {
 			let parts: Vec<String> = line.split(": ").map(|x| x.to_string()).collect();
 			let headers: HashSet<&'static str> = [
@@ -109,7 +109,7 @@ impl SsdpRequest {
 				"DATE",
 				"EXT"
 			].iter().cloned().collect();
-			if !parts[0].contains(header)) {
+			if !headers.contains(parts[0].as_str()) {
 				self.unknown = true;
 				return
 			}
@@ -196,7 +196,7 @@ impl SsdpRequest {
 	}
 	/// Check the combination headers to see if they are valid
 	fn check_combo(&mut self) {
-		if host.len > 0 && host.len < 2 {
+		if self.host.len() > 0 && self.host.len() < 2 {
 		}
 	}
 	/// Populate generated fields
