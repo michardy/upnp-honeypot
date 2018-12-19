@@ -23,3 +23,4 @@ When it is it will be necessary to add a UDP server for event transmission and p
 - [Rapid7 report on UPNP vulnerabilities](https://information.rapid7.com/rs/411-NAK-970/images/SecurityFlawsUPnP%20(1).pdf) (Primarily implimentation specific memory safety problems)
 - [Overview of Internet Gateway Device vulnerabilities](http://www.upnp-hacks.org/igd.html)
 - [Akamai report on attackers using UPNP to create proxy networks](https://www.akamai.com/us/en/multimedia/documents/white-paper/upnproxy-blackhat-proxies-via-nat-injections-white-paper.pdf)
+- [GENA protocol used as a basis for the UPNP event system](https://tools.ietf.org/html/draft-cohen-gena-client-00)
