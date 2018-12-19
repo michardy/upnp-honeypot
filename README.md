@@ -7,7 +7,7 @@ Honeypot emulating vulnerable UPNP enabled home network gateway
 		- Expose XML device descriptions
 		- Expose RPC control endpoints
 - ssdpserver/
-	- UDP Server that advertises the SOAP server using SSDP (In progress)
+	- UDP Server that advertises the SOAP server using SSDP (Valid responses are returned although requests are not yet fully parsed)
 		- Respond to M-Search requests (Todo)
 		- Index all SSDP fields into Elasticsearch (In progress)
 		- Block frequent repeat requests. (Done)
