@@ -5,7 +5,7 @@ Honeypot emulating vulnerable UPNP enabled home network gateway
 - soapserver/
   - Server responsible for the UPNP SOAP interface (**Unimplemented**)
 - ssdpserver/
-  - Server that advertises the SOAP server using SSDP (In progress)
+  - Server that advertises the SOAP server using SSDP (Valid responses are returned although requests are not yet fully parsed)
 
 ## Resources:
 - [UPNP spec](http://upnp.org/specs/arch/UPnP-arch-DeviceArchitecture-v1.1.pdf)
