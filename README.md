@@ -12,8 +12,9 @@ Honeypot emulating vulnerable UPNP enabled home network gateway
 		- Index all SSDP fields into Elasticsearch (In progress)
 		- Block frequent repeat requests. (Done)
 
+## Note about UPNP notifications:
 The UPNP event notification system will not be implimented at this time.
-When it is it will be nessisary to add a UDP server for event transmission and possibly subscription
+When it is it will be necessary to add a UDP server for event transmission and possibly subscription
 (The UPNP spec is a little vague as to whether subscriptions requests are sent over HTTP or UDP).
 
 ## Resources:
