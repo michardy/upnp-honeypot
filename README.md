@@ -3,9 +3,9 @@ Honeypot emulating vulnerable UPNP enabled home network gateway
 
 ## Repository structure:
 - soapserver/
-	- Server responsible for the UPNP SOAP interface (**Unimplemented**)
-		- Expose XML device descriptions
-		- Expose RPC control endpoints
+	- Server responsible for the UPNP SOAP interface (In progress)
+		- Expose XML device descriptions (In progress)
+		- Expose RPC control endpoints (unimplimented)
 - ssdpserver/
 	- UDP Server that advertises the SOAP server using SSDP (Valid responses are returned although requests are not yet fully parsed)
 		- Respond to M-Search requests (Done)
