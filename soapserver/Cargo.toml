@@ -9,3 +9,4 @@ chrono = {version = "0.4", features = ["serde"]}
 serde = "1.0"
 serde_derive = "1.0"
 elastic-index = {git = "https://github.com/michardy/elastic-index.git"}
+quick-xml = "0.13"
