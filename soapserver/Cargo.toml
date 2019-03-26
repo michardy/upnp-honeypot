@@ -4,7 +4,8 @@ version = "0.1.0"
 authors = ["Michael Hardy <98.michael.hardy@gmail.com>"]
 
 [dependencies]
-rocket = { git = "https://github.com/SergioBenitez/Rocket" }
+actix-web = "0.7"
+http = "0.1"
 chrono = {version = "0.4", features = ["serde"]}
 serde = "1.0"
 serde_derive = "1.0"

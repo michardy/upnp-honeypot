@@ -1,54 +1,38 @@
-#![feature(proc_macro_hygiene, decl_macro, custom_attribute)]
-
-#[macro_use] extern crate rocket;
+extern crate actix_web;
+extern crate http;
+use actix_web::{server, App, HttpRequest, HttpResponse, Responder, Result};
+use actix_web::middleware::{Middleware, Started, Response};
 
 extern crate quick_xml;
 
-use rocket::fairing::AdHoc;
-use rocket::Data;
-
 // Device Descriptions
 
-mod soap;
+use http::{header, HttpTryFrom};
 
-/// Root device description
-#[get("/rootDesc.xml")]
-fn index() -> &'static str {
-	include_str!("description.xml")
+struct Headers;
+
+impl<S> Middleware<S> for Headers {
+	fn start(&self, req: &HttpRequest<S>) -> Result<Started> {
+		Ok(Started::Done)
+	}
+
+	/// Mathod used to add a server header
+	fn response(&self, req: &HttpRequest<S>, mut resp: HttpResponse)
+		-> Result<Response>
+	{
+		resp.headers_mut().insert(
+			header::HeaderName::try_from("Server").unwrap(),
+			header::HeaderValue::from_static("Linux/2.6, UPnP/1.0, miniupnpd/1.0"));
+		Ok(Response::Done(resp))
+	}
 }
-
-/// Description of LAN service
-#[get("/lan.xml")]
-fn lan() -> &'static str {
-	include_str!("lan.xml")
-}
-
-/// Description of WANIP service
-#[get("/Public_UPNP_WANIPConn.xml")]
-fn ip() -> &'static str {
-	include_str!("wanip.xml")
-}
-
-/// WAN Point to Point Protocol description
-#[get("/Public_UPNP_WANPPPConn.xml")]
-fn ppp() -> &'static str {
-	include_str!("wanppp.xml")
-}
-
-/// WANIP SOAP handler
-#[post("/Public_UPNP_C3", data="<xml>")]
-fn wan_ip_soap(xml: Data) -> &'static str {
-	let xml_stream = data.open();
-	soap::Soap::parse(xml_stream);
-	"test"
-}
-
 
 fn main() {
-	rocket::ignite()
-		.mount("/", routes![index, idg, wap])
-		.attach(AdHoc::on_response("Reset server", |_, res| {
-			res.set_raw_header("Server", "Linux/2.6, UPnP/1.0, miniupnpd/1.0");
-		}))
-		.launch();
+	server::new(|| {
+		App::new()
+			.middleware(Headers)
+	})
+		.bind("127.0.0.1:8000")
+		.expect("Can not bind to port 8000")
+		.run();
 }
