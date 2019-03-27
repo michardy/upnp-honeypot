@@ -1,5 +1,5 @@
 # upnp-honeypot
-Honeypot emulating vulnerable UPNP enabled home network gateway
+Honeypot for emulating UPNP devices
 
 ## Repository structure:
 - soapserver/
