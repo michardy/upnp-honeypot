@@ -1,3 +1,4 @@
+extern crate yaml_rust;
 extern crate actix_web;
 extern crate http;
 use actix_web::{server, App, HttpRequest, HttpResponse, Responder, Result};
@@ -10,6 +11,8 @@ extern crate quick_xml;
 use http::{header, HttpTryFrom};
 
 struct Headers;
+
+mod endpoint;
 
 impl<S> Middleware<S> for Headers {
 	fn start(&self, req: &HttpRequest<S>) -> Result<Started> {
@@ -28,11 +31,15 @@ impl<S> Middleware<S> for Headers {
 }
 
 fn main() {
-	server::new(|| {
+	// Get config
+	let config = endpoint::Config::new_from_path("soap.yaml");
+	// Create empty server with headers set but no handlers
+	let soap_server = server::new(|| {
 		App::new()
 			.middleware(Headers)
 	})
 		.bind("127.0.0.1:8000")
-		.expect("Can not bind to port 8000")
-		.run();
+		.expect("Can not bind to port 8000");
+	// iterate handlers and add to server
+	soap_server.run();
 }
