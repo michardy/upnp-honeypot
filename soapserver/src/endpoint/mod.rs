@@ -24,7 +24,7 @@ impl Variable {
 			},
 			value: match config["value"] {
 				Yaml::String(ref s) => State::String(s.to_string()),
-				Yaml::Integer(ref s) => State::Int(*s),
+				Yaml::Integer(ref i) => State::Int(*i),
 				_ => panic!("Invalid config. String or Integer expected for value")
 			}
 		}
@@ -63,7 +63,19 @@ pub struct Endpoint {
 }
 
 impl Endpoint {
-	fn new(config: Yaml) -> Endpoint {
+	fn new(config: &Yaml) -> Endpoint {
+		let state_config = match config["variables"] {
+			Yaml::Array(ref a) => a,
+			_ => {panic!("Varibles are expected to be a vector")}
+		};
+		let mut states: Vec<State> = Vec::new();
+		for state in state_config {
+			states.push(match state {
+				Yaml::String(ref s) => State::String(s.to_string()),
+				Yaml::Integer(ref i) => State::Int(*i),
+				_ => {panic!("Variables must either be strings or integers");}
+			});
+		}
 		Endpoint {
 			namespace: match config["namespace"] {
 				Yaml::String(ref s) => s.to_string(),
@@ -77,7 +89,7 @@ impl Endpoint {
 				Yaml::String(ref s) => s.to_string(),
 				_ => panic!("Expected description to be string")
 			},
-			states: Vec::new(),
+			states: states,
 			functions: HashMap::new()
 		}
 	}
@@ -118,10 +130,14 @@ impl Config {
 				}
 			);
 		}
-		let endpoints: Vec<Endpoint> = Vec::new();
-		/*for enpoint in config["enpoints"] {
-			
-		}*/
+		let mut endpoints: Vec<Endpoint> = Vec::new();
+		let endpoint_config = match config["enpoints"] {
+			Yaml::Array(ref a) => a,
+			_ => {panic!("Enpoints are expected to be a vector")}
+		};
+		for endpoint in endpoint_config {
+			endpoints.push(Endpoint::new(endpoint));
+		}
 		Config {
 			description: match config["description"] {
 				Yaml::String(ref s) => s.to_string(),
