@@ -1,3 +1,4 @@
+
 use yaml_rust::YamlLoader;
 use yaml_rust::yaml::Yaml;
 use std::fs;
@@ -16,16 +17,16 @@ pub struct Variable {
 }
 
 impl Variable {
-	fn new(config: Yaml) -> Variable {
+	fn new(config: &Yaml) -> Variable {
 		Variable {
 			name: match config["name"] {
 				Yaml::String(ref s) => s.to_string(),
-				_ => panic!("Invalid config. String expected for name")
+				_ => panic!("Invalid config. String expected for variable name")
 			},
 			value: match config["value"] {
 				Yaml::String(ref s) => State::String(s.to_string()),
 				Yaml::Integer(ref i) => State::Int(*i),
-				_ => panic!("Invalid config. String or Integer expected for value")
+				_ => panic!("Invalid config. String or Integer expected for variable value")
 			}
 		}
 	}
@@ -38,14 +39,33 @@ pub struct Function {
 
 impl Function {
 	/// Creates a `Function` object from config
-	fn new(config: Yaml) -> Function {
-		for input in config {
-			
+	fn new(config: &Yaml) -> (String, Function) {
+		let mut inputs: Vec<Variable> = Vec::new();
+		let mut outputs: Vec<Variable> = Vec::new();
+		let input_config = match config["inputs"] {
+			Yaml::Array(ref a) => a,
+			_ => {panic!("Invalid config. Inputs not in an array")}
+		};
+		for input in input_config {
+			inputs.push(Variable::new(input));
 		}
-		Function {
-			inputs: Vec::new(),
-			outputs: Vec::new()
+		let output_config = match config["outputs"] {
+			Yaml::Array(ref a) => a,
+			_ => {panic!("Invalid config. Outputs not in an array")}
+		};
+		for output in output_config {
+			outputs.push(Variable::new(output));
 		}
+		(
+			 match config["name"] {
+				Yaml::String(ref s) => s.to_string(),
+				_ => panic!("Invalid config. String expected for function name")
+			},
+			Function {
+				inputs: inputs,
+				outputs: outputs
+			}
+		)
 	}
 	/// Runs a function by computing its inputs and then its output
 	fn run(inputs: HashMap<String, State>) -> HashMap<String, String> {
@@ -75,6 +95,15 @@ impl Endpoint {
 				Yaml::Integer(ref i) => State::Int(*i),
 				_ => {panic!("Variables must either be strings or integers");}
 			});
+		}
+		let mut functions: HashMap<String, Function> = HashMap::new();
+		let function_config = match config["functions"] {
+			Yaml::Array(ref a) => a,
+			_ => {panic!("Invalid Config. Functions are expected to be listed")}
+		};
+		for function in function_config {
+			let (name, func) = Function::new(function);
+			functions.insert(name, func);
 		}
 		Endpoint {
 			namespace: match config["namespace"] {
