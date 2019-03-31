@@ -15,7 +15,7 @@ struct Headers;
 mod endpoint;
 
 impl<S> Middleware<S> for Headers {
-	fn start(&self, req: &HttpRequest<S>) -> Result<Started> {
+	fn start(&self, _req: &HttpRequest<S>) -> Result<Started> {
 		Ok(Started::Done)
 	}
 
